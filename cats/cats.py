@@ -135,6 +135,9 @@ def wpm(typed, elapsed):
     assert elapsed > 0, 'Elapsed time must be positive'
     # BEGIN PROBLEM 4
     "*** YOUR CODE HERE ***"
+    return len(typed)*12/elapsed
+
+
     # END PROBLEM 4
 
 
@@ -162,6 +165,14 @@ def autocorrect(typed_word, word_list, diff_function, limit):
     """
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+    if(typed_word in word_list):
+        return typed_word
+    #//get different words  (list generator)
+    diff_words=[diff_function(typed_word,word,limit) for word in word_list]
+    if min(diff_words)<=limit:
+        return word_list[diff_words.index(min(diff_words))]
+    else:
+        return typed_word
     # END PROBLEM 5
 
 
@@ -188,7 +199,36 @@ def sphinx_swaps(start, goal, limit):
     5
     """
     # BEGIN PROBLEM 6
-    assert False, 'Remove this line'
+    result=0
+
+    if len(start) == 0:
+        return len(goal)
+    if len(goal) == 0:
+        return len(start)
+
+    if len(start)<=len(goal):
+        result=result+abs(len(goal)-len(start))
+        temp=len(start)
+    else:
+        temp=len(goal)
+    
+    for i in range(temp):
+        if(start[i]!=goal[i]):
+            result=result+1
+            
+    return result
+
+    """"   if len(start) == 0:
+           return len(goal)
+       if len(goal) == 0:
+           return len(start)
+       if start[0] != goal[0]:
+           if limit == 0:
+               return 1
+           return 1 + sphinx_swaps(start[1:], goal[1:], limit - 1)
+       else:
+           return sphinx_swaps(start[1:], goal[1:], limit)"""
+
     # END PROBLEM 6
 
 
@@ -209,31 +249,35 @@ def minimum_mewtations(start, goal, limit):
     >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
     3
     """
-    assert False, 'Remove this line'
 
-    if ______________:  # Fill in the condition
+
+    if limit<0:  # Fill in the condition
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return 0
         # END
 
-    elif ___________:  # Feel free to remove or add additional cases
+    elif not start or not goal:  # Feel free to remove or add additional cases
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return len(start) + len(goal)
         # END
-
+    elif start[0]==goal[0]:
+        return minimum_mewtations(start[1:],goal[1:],limit)#往后遍历limit不变
     else:
-        add = ...  # Fill in these lines
-        remove = ...
-        substitute = ...
+        add = minimum_mewtations(start,goal[1:],limit-1)#增加缺失字符，输入字符不变，比较字符向后遍历，limit减一
+        remove = minimum_mewtations(start[1:],goal,limit-1)#删除不同的输入字符，遍历字符不变，limit不减一
+        substitute = minimum_mewtations(start[1:],goal[1:],limit-1)#将不同的字符替换成对比字符，同时往后遍历limit减一
         # BEGIN
         "*** YOUR CODE HERE ***"
         # END
+        return 1 + min(add,remove,substitute)
 
 
 def final_diff(start, goal, limit):
     """A diff function that takes in a string START, a string GOAL, and a number LIMIT.
     If you implement this function, it will be used."""
-    assert False, 'Remove this line to use your final_diff function.'
+ #   assert False, 'Remove this line to use your final_diff function.'
 
 
 FINAL_DIFF_LIMIT = 6  # REPLACE THIS WITH YOUR LIMIT
@@ -269,6 +313,15 @@ def report_progress(sofar, prompt, user_id, upload):
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    count=0
+    for i in range(len(sofar)):
+        if sofar[i]==prompt[i]:
+            count=count+1
+        else :
+            break
+    progress = count / len(prompt)
+    upload({'id':user_id,'progress':progress})
+    return progress
     # END PROBLEM 8
 
 
@@ -291,6 +344,10 @@ def time_per_word(words, times_per_player):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    diff = []
+    for tpp in times_per_player:
+        diff.append([tpp[i] - tpp[i - 1] for i in range(1, len(tpp))])
+    return match(words, diff)
     # END PROBLEM 9
 
 
