@@ -370,6 +370,20 @@ def fastest_words(match):
     word_indices = range(len(match["words"]))    # contains an *index* for each word
     # BEGIN PROBLEM 10
     "*** YOUR CODE HERE ***"
+    #创建一个二维数组
+    fastest=[[] for _ in player_indices]
+
+    for word_index in word_indices:
+        min_speed=float('inf')#设置一个很大的值来重置最小完成时间
+        player=0#记录最小完成时间的玩家的编号
+        for player_index in player_indices:
+            if time(match,player_index,word_index)<min_speed:#重置最小完成时间及其编号
+                min_speed=time(match,player_index,word_index)
+                player=player_index
+        fastest[player].append(word_at(match,word_index))#插入每个单词完成时间最小的..
+    return fastest
+
+
     # END PROBLEM 10
 
 
