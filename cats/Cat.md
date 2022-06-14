@@ -1,0 +1,549 @@
+# Cat
+
+[toc]
+
+## 第一阶段：键入
+
+### 问题一
+**要求：** 完善choose函数，此函数选择用户将键入的段落。它需要三个参数：
+
+> paragraphs：一个（字符串）列表；
+> select：一个选择函数，如果传入的字符串符合要求（被选中），返回True，否则返回False；
+> k：一个非负指数k，代表选中第几个被选中的字符串；
+
+**函数功能：** 从 SELECT 调用的段落中返回第 K 段段落返回 True。如果此类段落少于 K，则返回空字符串。
+
+**实现代码：**
+
+```python
+def choose(paragraphs, select, k):
+    """Return the Kth paragraph from PARAGRAPHS for which SELECT called on the
+    paragraph returns True. If there are fewer than K such paragraphs, return
+    the empty string.
+
+    Arguments:
+        paragraphs: a list of strings
+        select: a function that returns True for paragraphs that can be selected
+        k: an integer
+
+    >>> ps = ['hi', 'how are you', 'fine']
+    >>> s = lambda p: len(p) <= 4
+    >>> choose(ps, s, 0)
+    'hi'
+    >>> choose(ps, s, 1)
+    'fine'
+    >>> choose(ps, s, 2)
+    ''
+    """
+    # BEGIN PROBLEM 1
+    "*** YOUR CODE HERE ***"
+    for str in paragraphs:
+        if select(str):
+            k=k-1
+        if k<0:
+            return str
+    return ""
+    # END PROBLEM 1
+
+# easy way:
+"""
+    selected = [paragraph for paragraph in paragraphs if select(paragraph)]
+    return selected[k] if k < len(selected) else ''
+"""
+
+```
+### 问题二
+
+
+**要求：** 完善about函数，它返回一个函数，该函数采用一个段落并返回一个布尔值，指示该段落是否包含 中的任何单词。以下为参数解释
+
+> topic:跟物品相关的词汇列表，作为对比标准
+
+**函数功能：** 传入一个topic单词列表，返回一个函数，用于判断段落是否符合主题。
+
+
+
+**实现代码：**
+
+```python
+def about(topic):
+    """Return a select function that returns whether
+    a paragraph contains one of the words in TOPIC.
+
+    Arguments:
+        topic: a list of words related to a subject
+
+    >>> about_dogs = about(['dog', 'dogs', 'pup', 'puppy'])
+    >>> choose(['Cute Dog!', 'That is a cat.', 'Nice pup!'], about_dogs, 0)
+    'Cute Dog!'
+    >>> choose(['Cute Dog!', 'That is a cat.', 'Nice pup.'], about_dogs, 1)
+    'Nice pup.'
+    """
+    assert all([lower(x) == x for x in topic]), 'topics should be lowercase.'
+    # BEGIN PROBLEM 2
+    "*** YOUR CODE HERE ***"
+    # END PROBLEM 2
+    def select(paragraph):
+        for word in split(lower(remove_punctuation(paragraph))):#处理一下传入的paragraph
+            if word in topic:
+                return True
+        return False
+    return select
+
+```
+
+
+### 问题三
+
+**要求：** 完善accuracy函数，它需要一个用户输入段落和一个标准参考段落。它返回用户输入段落与标准参考段落中的相应单词完全匹配的单词的百分比。大小写和标点符号也必须匹配。这里的“对应”意味着两个单词必须出现在 用户输入段落和标准参考段落中的同一索引处 — 两者的第一个单词必须匹配，两者的第二个单词必须匹配，依此类推。
+
+> typed:用户输入的字符串
+> reference:标准对比的字符串
+
+**函数功能：** 它返回用户输入段落与标准参考段落中的相应单词完全匹配的单词的百分比。
+
+**实现代码：**
+
+```python
+
+def accuracy(typed, reference):
+    """Return the accuracy (percentage of words typed correctly) of TYPED
+    when compared to the prefix of REFERENCE that was typed.
+
+    Arguments:
+        typed: a string that may contain typos
+        reference: a string without errors
+
+    >>> accuracy('Cute Dog!', 'Cute Dog.')
+    50.0
+    >>> accuracy('A Cute Dog!', 'Cute Dog.')
+    0.0
+    >>> accuracy('cute Dog.', 'Cute Dog.')
+    50.0
+    >>> accuracy('Cute Dog. I say!', 'Cute Dog.')
+    50.0
+    >>> accuracy('Cute', 'Cute Dog.')
+    100.0
+    >>> accuracy('', 'Cute Dog.')
+    0.0
+    >>> accuracy('', '')
+    100.0
+    """
+    typed_words = split(typed)
+    reference_words = split(reference)
+    # BEGIN PROBLEM 3
+    "*** YOUR CODE HERE ***"
+    if len(typed_words) == len(reference_words) == 0:
+        return 100.0
+    elif len(typed_words) == 0:
+        return 0.0
+
+    length=len(typed_words)#分母
+    correct_count=0
+    for x, y in zip(typed_words, reference_words):
+        if x == y:
+            correct_count += 1
+
+    return correct_count/length*100.0
+
+
+
+    # END PROBLEM 3
+
+```
+
+### 问题四
+
+**要求：** 完善wpm函数，它计算每分钟的单词数，这是键入速度的度量，给定一个字符串和以秒为单位的时间量。与它的名字不符的是，每分钟的单词不是基于键入的单词数，而是基于每5个字符的组数，因此打字测试不会因单词的长度而产生偏差。每分钟字数的公式是键入的字符数（包括空格）除以 5（典型的字长）与以分钟为单位的已用时间的比率。
+例如，字符串包含三个单词和十个字符（不包括引号）。每分钟字数计算使用 2 作为键入的字数（因为 10 / 5 = 2）。如果有人在30秒（半分钟）内键入此字符串，则其速度为每分钟4个单词。"I am glad!"
+
+> typed:用户输入的字符串
+> elapsed:用户所用时间
+
+**函数功能：** 
+计算打字速度WPM（每分钟的打字数）
+**实现代码：**
+
+```python
+def wpm(typed, elapsed):
+    """Return the words-per-minute (WPM) of the TYPED string.
+
+    Arguments:
+        typed: an entered string
+        elapsed: an amount of time in seconds
+
+    >>> wpm('hello friend hello buddy hello', 15)
+    24.0
+    >>> wpm('0123456789',60)
+    2.0
+    """
+    assert elapsed > 0, 'Elapsed time must be positive'
+    # BEGIN PROBLEM 4
+    "*** YOUR CODE HERE ***"
+    return len(typed)*12/elapsed
+
+
+    # END PROBLEM 4
+
+```
+## 第二阶段：自动更正
+
+### 问题五
+**要求：** 完善autocorrect函数，使用了四个参数：typed_word, word_list, typed_word包含在word_list中，则返回该单词，否则，返回typed_word与基于word_list提供的单词差异最小的单词。这个差异根据diff_function定义，但是，如果typed_word与word_list中任何单词之间的最小差值大于limit，则返回typed_word。（***注意：如果typed_word不包含在word_list里面，并且存在多个字符串与typed_word根据diff_function定义的具有相同的最低差值，则应返回word_list中首先出现的字符串***）
+
+> typed_word：可能包含错误的单词字符串
+> word_list：有效单词列表
+> diff_function：用于量化两个单词之间差异的函数
+> limit：对量化后差异的限制
+
+
+**函数功能：** 
+返回typed_word与基于word_list提供的单词差异最小的单词，如果差值超限的话返回typed_word
+**实现代码：**
+
+```python
+
+def autocorrect(typed_word, word_list, diff_function, limit):
+    """Returns the element of WORD_LIST that has the smallest difference
+    from TYPED_WORD. Instead returns TYPED_WORD if that difference is greater
+    than LIMIT.
+
+    Arguments:
+        typed_word: a string representing a word that may contain typos
+        word_list: a list of strings representing reference words
+        diff_function: a function quantifying the difference between two words
+        limit: a number
+
+    >>> ten_diff = lambda w1, w2, limit: 10 # Always returns 10
+    >>> autocorrect("hwllo", ["butter", "hello", "potato"], ten_diff, 20)
+    'butter'
+    >>> first_diff = lambda w1, w2, limit: (1 if w1[0] != w2[0] else 0) # Checks for matching first char
+    >>> autocorrect("tosting", ["testing", "asking", "fasting"], first_diff, 10)
+    'testing'
+    """
+    # BEGIN PROBLEM 5
+    "*** YOUR CODE HERE ***"
+    if(typed_word in word_list):
+        return typed_word
+    #//get different words  (list generator)
+    diff_words=[diff_function(typed_word,word,limit) for word in word_list]
+    if min(diff_words)<=limit:
+        return word_list[diff_words.index(min(diff_words))]
+    else:
+        return typed_word
+    # END PROBLEM 5
+
+```
+
+### 问题六
+**要求：** 完善sphinx_swaps函数，这是一个采用两个字符串的 diff 函数。它返回必须更改start 单词以将其转换为goal单词的最小字符数。如果字符串的长度不相等，则将长度差值添加到总值中。
+
+> start:需要改变的单词
+> goal:目标需要得到的单词
+> limit:从start到goal，需要修改的字符个数上限
+
+**函数功能：** 
+用于自动更正的 diff 函数，用于确定多少个字母在START中需要替换以到达GOAL，然后添加它们的长度的差异并返回结果。
+**实现代码：**
+
+```python
+
+def sphinx_swaps(start, goal, limit):
+    """A diff function for autocorrect that determines how many letters
+    in START need to be substituted to create GOAL, then adds the difference in
+    their lengths and returns the result.
+
+    Arguments:
+        start: a starting word
+        goal: a string representing a desired goal word
+        limit: a number representing an upper bound on the number of chars that must change
+
+    >>> big_limit = 10
+    >>> sphinx_swaps("nice", "rice", big_limit)    # Substitute: n -> r
+    1
+    >>> sphinx_swaps("range", "rungs", big_limit)  # Substitute: a -> u, e -> s
+    2
+    >>> sphinx_swaps("pill", "pillage", big_limit) # Don't substitute anything, length difference of 3.
+    3
+    >>> sphinx_swaps("roses", "arose", big_limit)  # Substitute: r -> a, o -> r, s -> o, e -> s, s -> e
+    5
+    >>> sphinx_swaps("rose", "hello", big_limit)   # Substitute: r->h, o->e, s->l, e->l, length difference of 1.
+    5
+    """
+    # BEGIN PROBLEM 6
+    result=0
+
+    if len(start) == 0:
+        return len(goal)
+    if len(goal) == 0:
+        return len(start)
+
+    if len(start)<=len(goal):
+        result=result+abs(len(goal)-len(start))
+        temp=len(start)
+    else:
+        temp=len(goal)
+    
+    for i in range(temp):
+        if(start[i]!=goal[i]):
+            result=result+1
+            
+    return result
+
+    """"   if len(start) == 0:
+           return len(goal)
+       if len(goal) == 0:
+           return len(start)
+       if start[0] != goal[0]:
+           if limit == 0:
+               return 1
+           return 1 + sphinx_swaps(start[1:], goal[1:], limit - 1)
+       else:
+           return sphinx_swaps(start[1:], goal[1:], limit)"""
+
+    # END PROBLEM 6
+
+
+```
+
+
+### 问题七
+
+**要求：** 完善minimum_mewtations函数，这是一个 diff 函数，它返回将单词start 转换为单词goal 所需的最小编辑操作数。与sphinx_switches区别在于，可以对start进行添加、删除或替换的编辑操作。
+
+>  start: 需要改变的单词
+>  goal:  目标单词
+>  limit: 最大编辑操作数
+
+**函数功能：** 
+统计将单词start 转换为单词goal 所需的最小编辑操作数
+**实现代码：**
+
+```python
+def minimum_mewtations(start, goal, limit):
+    """A diff function that computes the edit distance from START to GOAL.
+    This function takes in a string START, a string GOAL, and a number LIMIT.
+
+    Arguments:
+        start: a starting word
+        goal: a goal word
+        limit: a number representing an upper bound on the number of edits
+
+    >>> big_limit = 10
+    >>> minimum_mewtations("cats", "scat", big_limit)       # cats -> scats -> scat
+    2
+    >>> minimum_mewtations("purng", "purring", big_limit)   # purng -> purrng -> purring
+    2
+    >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
+    3
+    """
+
+
+    if limit<0:  # Fill in the condition
+        # BEGIN
+        "*** YOUR CODE HERE ***"
+        return 0
+        # END
+
+    elif not start or not goal:  # Feel free to remove or add additional cases
+        # BEGIN
+        "*** YOUR CODE HERE ***"
+        return len(start) + len(goal)
+        # END
+    elif start[0]==goal[0]:
+        return minimum_mewtations(start[1:],goal[1:],limit)#往后遍历limit不变
+    else:
+        add = minimum_mewtations(start,goal[1:],limit-1)#增加缺失字符，输入字符不变，比较字符向后遍历，limit减一
+        remove = minimum_mewtations(start[1:],goal,limit-1)#删除不同的输入字符，遍历字符不变，limit不减一
+        substitute = minimum_mewtations(start[1:],goal[1:],limit-1)#将不同的字符替换成对比字符，同时往后遍历limit减一
+        # BEGIN
+        "*** YOUR CODE HERE ***"
+        # END
+        return 1 + min(add,remove,substitute)
+
+```
+
+
+## 第三阶段：多人游戏
+
+### 问题八
+
+**要求：** 
+完善report_progress函数，每当用户完成键入单词时调用它。它需要一个单词列表sofar、用户中的单词列表prompt，用户的ID（user_id），以及一个用于将进度报告上传到多人游戏服务器的函数upload。sofar里面的单词永远不会比prompt里面的单词多。您的进度是您正确键入的单词的比率，直到第一个不正确的单词，除以单词数。例如，此示例的进度为：0.25；您的report_progress 函数应该做两件事：将消息上传到多人游戏服务器，并返回玩家的进度。
+您可以通过调用upload函数在包含键和的双元素字典上，将消息上传到多人游戏服务器。然后，您应该返回玩家的进度，即您计算的单词的比率。
+
+> sofar：到目前为止用户所完成的单词列表
+> prompt：目标所需完成的单词列表
+> user_id：用户的ID
+> upload：上传函数，用来上传用户当前完成的信息，包括用户id和当前进度
+
+**函数功能：** 
+将您的ID和进度报告上传到多人游戏服务器，返回到目前为止的进度。
+
+**实现代码：**
+
+```python
+def report_progress(sofar, prompt, user_id, upload):
+    """Upload a report of your id and progress so far to the multiplayer server.
+    Returns the progress so far.
+
+    Arguments:
+        sofar: a list of the words input so far
+        prompt: a list of the words in the typing prompt
+        user_id: a number representing the id of the current user
+        upload: a function used to upload progress to the multiplayer server
+
+    >>> print_progress = lambda d: print('ID:', d['id'], 'Progress:', d['progress'])
+    >>> # The above function displays progress in the format ID: __, Progress: __
+    >>> print_progress({'id': 1, 'progress': 0.6})
+    ID: 1 Progress: 0.6
+    >>> sofar = ['how', 'are', 'you']
+    >>> prompt = ['how', 'are', 'you', 'doing', 'today']
+    >>> report_progress(sofar, prompt, 2, print_progress)
+    ID: 2 Progress: 0.6
+    0.6
+    >>> report_progress(['how', 'aree'], prompt, 3, print_progress)
+    ID: 3 Progress: 0.2
+    0.2
+    """
+    # BEGIN PROBLEM 8
+    "*** YOUR CODE HERE ***"
+    count=0
+    for i in range(len(sofar)):
+        if sofar[i]==prompt[i]:
+            count=count+1
+        else :
+            break
+    progress = count / len(prompt)
+    upload({'id':user_id,'progress':progress})
+    return progress
+    # END PROBLEM 8
+
+```
+
+### 问题九
+**要求：** 完善time_per_word函数 ，它接受一个单词列表和 包含每个玩家完成时间的列表的列表，带有时间戳times_per_player，指示每个玩家何时完成键入每个单词。它返回 具有给定信息的 。match是一个存贮words和times的一个字典，times是以列表的列表的形式存贮的，他包含每个玩家何时完成键入每个单词，准确的说是：times[i][j]指示玩家i键入j所花费的时间。举个栗子：words = ['Hello', 'world'] 和times = [[1, 5], [4, 2]]，[1, 5]对应player0他完成'Hello'用了（5-1）个时间戳， [4, 2]对应的就是player1.
+
+>   words:用户所需输入的单词列表
+>        times_per_player: 一个列表的列表，对应的是每一个玩家输入相应单词的开始时间和结束时间（第一个单词的结束时间就是是第二个单词的开始时间）
+
+**函数功能：** 
+给定计时数据，返回一个匹配字典，其中包含单词列表以及每个玩家键入每个单词所花费的时间。
+**实现代码：**
+
+```python
+def time_per_word(words, times_per_player):
+    """Given timing data, return a match dictionary, which contains a
+    list of words and the amount of time each player took to type each word.
+
+    Arguments:
+        words: a list of words, in the order they are typed.
+        times_per_player: A list of lists of timestamps including the time
+                          the player started typing, followed by the time
+                          the player finished typing each word.
+
+    >>> p = [[75, 81, 84, 90, 92], [19, 29, 35, 36, 38]]
+    >>> match = time_per_word(['collar', 'plush', 'blush', 'repute'], p)
+    >>> match["words"]
+    ['collar', 'plush', 'blush', 'repute']
+    >>> match["times"]
+    [[6, 3, 6, 2], [10, 6, 1, 2]]
+    """
+    # BEGIN PROBLEM 9
+    "*** YOUR CODE HERE ***"
+    diff = []
+    for tpp in times_per_player:
+        diff.append([tpp[i] - tpp[i - 1] for i in range(1, len(tpp))])
+    return match(words, diff)
+    # END PROBLEM 9
+
+```
+
+### 问题十
+
+**要求：** 完善fastest_words函数 ，返回每个玩家键入最快的单词。一旦两个玩家都完成键入，就会调用此函数。它需要一个match。具体来说，该函数返回单词列表，每个玩家一个列表，每个列表中包含他们键入最快的单词（针对所有其他玩家）。在平局的情况下，将列表中最早的玩家（最小的玩家索引）视为键入速度最快的玩家。例如，考虑以下与“刚刚”，“有”和“有趣”等单词的匹配。玩家0键入“有趣”最快（3秒），玩家1键入“Just”最快（4秒），并且他们并列“有”一词（两者都花了1秒），因此我们认为玩家0是最快的，因为他们是列表中最早的玩家。
+
+> match：详情请往下看..
+
+**函数功能：** 
+返回每个玩家键入速度最快的单词的列表列表。
+**实现代码：**
+
+```python
+
+def fastest_words(match):
+    """Return a list of lists of which words each player typed fastest.
+
+    Arguments:
+        match: a match dictionary as returned by time_per_word.
+
+    >>> p0 = [5, 1, 3]
+    >>> p1 = [4, 1, 6]
+    >>> fastest_words(match(['Just', 'have', 'fun'], [p0, p1]))
+    [['have', 'fun'], ['Just']]
+    >>> p0  # input lists should not be mutated
+    [5, 1, 3]
+    >>> p1
+    [4, 1, 6]
+    """
+    player_indices = range(len(match["times"]))  # contains an *index* for each player
+    word_indices = range(len(match["words"]))    # contains an *index* for each word
+    # BEGIN PROBLEM 10
+    "*** YOUR CODE HERE ***"
+    #创建一个二维数组
+    fastest=[[] for _ in player_indices]
+
+    for word_index in word_indices:
+        min_speed=float('inf')#设置一个很大的值来重置最小完成时间
+        player=0#记录最小完成时间的玩家的编号
+        for player_index in player_indices:
+            if time(match,player_index,word_index)<min_speed:#重置最小完成时间及其编号
+                min_speed=time(match,player_index,word_index)
+                player=player_index
+        fastest[player].append(word_at(match,word_index))#插入每个单词完成时间最小的..
+    return fastest
+
+
+    # END PROBLEM 10
+
+
+def match(words, times):
+    """A dictionary containing all words typed and their times.
+
+    Arguments:
+        words: A list of strings, each string representing a word typed.
+        times: A list of lists for how long it took for each player to type
+            each word.
+            times[i][j] = time it took for player i to type words[j].
+
+    Example input:
+        words: ['Hello', 'world']
+        times: [[5, 1], [4, 2]]
+    """
+    assert all([type(w) == str for w in words]), 'words should be a list of strings'
+    assert all([type(t) == list for t in times]), 'times should be a list of lists'
+    assert all([isinstance(i, (int, float)) for t in times for i in t]), 'times lists should contain numbers'
+    assert all([len(t) == len(words) for t in times]), 'There should be one word per time.'
+    return {"words": words, "times": times}
+
+
+def word_at(match, word_index):
+    """A utility function that gets the word with index word_index"""
+    assert 0 <= word_index < len(match["words"]), "word_index out of range of words"
+    return match["words"][word_index]
+
+
+def time(match, player_num, word_index):
+    """A utility function for the time it took player_num to type the word at word_index"""
+    assert word_index < len(match["words"]), "word_index out of range of words"
+    assert player_num < len(match["times"]), "player_num out of range of players"
+    return match["times"][player_num][word_index]
+
+
+def match_string(match):
+    """A helper function that takes in a match dictionary and returns a string representation of it"""
+    return f"match({match['words']}, {match['times']})"
+
+
+enable_multiplayer = False  # Change to True when you're ready to race.
+```
