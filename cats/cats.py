@@ -278,9 +278,35 @@ def final_diff(start, goal, limit):
     """A diff function that takes in a string START, a string GOAL, and a number LIMIT.
     If you implement this function, it will be used."""
  #   assert False, 'Remove this line to use your final_diff function.'
+    if limit<0:  # Fill in the condition
+        # BEGIN
+        "*** YOUR CODE HERE ***"
+        return 0
+        # END
+
+    elif not start or not goal:  # Feel free to remove or add additional cases
+        # BEGIN
+        "*** YOUR CODE HERE ***"
+        return len(start) + len(goal)
+        # END
+    elif start[0]==goal[0]:
+        return final_diff(start[1:],goal[1:],limit)#往后遍历limit不变
+    elif (start[0]==goal[1]&start[1]==goal[0]):
+        exchange= final_diff(start[2:],goal[2:],limit)
+        return 1+exchange;
+    else:
+        add = final_diff(start,goal[1:],limit-1)#增加缺失字符，输入字符不变，比较字符向后遍历，limit减一
+        remove = final_diff(start[1:],goal,limit-1)#删除不同的输入字符，遍历字符不变，limit不减一
+        substitute = final_diff(start[1:],goal[1:],limit-1)#将不同的字符替换成对比字符，同时往后遍历limit减一
+        # BEGIN
+        "*** YOUR CODE HERE ***"
+        # END
+        return 1 + min(add,remove,substitute)
 
 
 FINAL_DIFF_LIMIT = 6  # REPLACE THIS WITH YOUR LIMIT
+
+
 
 
 ###########
